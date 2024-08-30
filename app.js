@@ -1,20 +1,27 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('./models/user'); // โมเดลผู้ใช้ใน MongoDB
+
 const app = express();
 app.use(express.json());
 
-const uri = process.env.MONGODB_URI || 'mongodb+srv://KingploySaeyang:Kingploy2101@cluster0.nhlasry.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-mongoose.connect(uri)
-.then(() => {
+// เชื่อมต่อกับ MongoDB
+mongoose.connect(process.env.MONGO_DB_URI, {
+}).then(() => {
     console.log('MongoDB connected');
-}).catch(err => console.log(err));
+}).catch((err) => {
+    console.error('Failed to connect to MongoDB:', err);
+});
 
-const productRoutes = require("./routes/product");
-app.use("/api/product", productRoutes);
+// Config Route
+const productRoutes = require('./routes/product');
+app.use('/api/product', productRoutes);
 
-const authRoutes = require ("./routes/auth");
-app.use("/api/auth", authRoutes);
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
