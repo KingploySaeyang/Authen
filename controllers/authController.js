@@ -28,14 +28,14 @@ exports.login = async (req, res) => {
         const accessToken = jwt.sign(
             { userId: user._id, role: user.role }, // เพิ่ม role
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: "5m" }
+            { expiresIn: "3h" }
         );
 
         const refreshToken = jwt.sign(
             { userId: user._id },
             process.env.REFRESH_TOKEN_SECRET
         );
-        res.json({ accessToken, refreshToken, role: user.role }); // ส่งคืน role ด้วย
+        res.json({user, accessToken, refreshToken, role: user.role }); // ส่งคืน role ด้วย
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -54,4 +54,20 @@ exports.refresh = async (req, res) => {
         );
         res.json({ accessToken });
     });
+};
+
+// Check username
+exports.check_username = async (req, res) => {
+    const { username } = req.body;
+    try {
+        const user = await User.findOne({ username });
+        if (user) {
+            // ถ้า username มีอยู่ในฐานข้อมูล
+            return res.json({ exists: true });
+        }
+        // ถ้า username ไม่มีในฐานข้อมูล
+        return res.json({ exists: false });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
 };
